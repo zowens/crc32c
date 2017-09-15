@@ -4,13 +4,17 @@ version = "0.1.0"
 authors = ["Zack Owens"]
 license = "Apache-2.0"
 keywords = ["crc", "simd"]
+categories = ["Algorithms"]
 repository = "https://github.com/zowens/crc32c"
 homepage = "https://github.com/zowens/crc32c"
-description = "Wrapper for SSE 4.1 CRC32C instructions, with software fallback"
+documentation = "http://docs.rs/crc32c"
+description = "Wrapper for SSE 4.2 CRC32C instructions, with software fallback"
 build = "build.rs"
 
 [dependencies]
 libc = "0.2"
+
+[dev-dependencies]
 rand = "0.3"
 
 [build-dependencies]
