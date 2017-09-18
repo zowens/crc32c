@@ -13,6 +13,7 @@ extern {
     fn crc32c_sw(crc: uint32_t, buf: *const c_void, len: size_t) -> uint32_t;
 }
 
+/// Computes the crc32c for the data payload.
 #[cfg(target_feature="sse4.2")]
 pub fn crc32c(data: &[u8]) -> u32 {
     let len = data.len();
@@ -21,6 +22,16 @@ pub fn crc32c(data: &[u8]) -> u32 {
     }
 }
 
+/// Computes the crc32c for the data payload.
+#[cfg(target_feature="sse4.2")]
+pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
+    let len = data.len();
+    unsafe {
+        crc32c_hw(crc, data.as_ptr() as *const c_void, len) as u32
+    }
+}
+
+/// Computes the crc32c for the data payload.
 #[cfg(not(target_feature="sse4.2"))]
 pub fn crc32c(data: &[u8]) -> u32 {
     let len = data.len();
@@ -29,16 +40,32 @@ pub fn crc32c(data: &[u8]) -> u32 {
     }
 }
 
+/// Computes the crc32c for the data payload, starting with a previous CRC32C value.
+#[cfg(not(target_feature="sse4.2"))]
+pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
+    let len = data.len();
+    unsafe {
+        crc32c_sw(crc, data.as_ptr() as *const c_void, len) as u32
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
     use rand::{OsRng, Rng};
-    use super::crc32c;
+    use super::*;
     use test::Bencher;
 
     #[test]
     fn test_crc() {
         let v = crc32c(b"012345678910");
+        assert_eq!(0x8412e281, v);
+    }
+
+    #[test]
+    fn test_crc_append() {
+        let v = crc32c(b"01234");
+        let v = crc32c_append(v, b"5678910");
         assert_eq!(0x8412e281, v);
     }
 
