@@ -15,6 +15,7 @@ extern {
 
 /// Computes the crc32c for the data payload.
 #[cfg(target_feature="sse4.2")]
+#[inline]
 pub fn crc32c(data: &[u8]) -> u32 {
     let len = data.len();
     unsafe {
@@ -24,6 +25,7 @@ pub fn crc32c(data: &[u8]) -> u32 {
 
 /// Computes the crc32c for the data payload.
 #[cfg(target_feature="sse4.2")]
+#[inline]
 pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
     let len = data.len();
     unsafe {
@@ -33,6 +35,7 @@ pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
 
 /// Computes the crc32c for the data payload.
 #[cfg(not(target_feature="sse4.2"))]
+#[inline]
 pub fn crc32c(data: &[u8]) -> u32 {
     let len = data.len();
     unsafe {
@@ -42,6 +45,7 @@ pub fn crc32c(data: &[u8]) -> u32 {
 
 /// Computes the crc32c for the data payload, starting with a previous CRC32C value.
 #[cfg(not(target_feature="sse4.2"))]
+#[inline]
 pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
     let len = data.len();
     unsafe {
