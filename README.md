@@ -23,3 +23,6 @@ implementation that uses SSE4.2 crc32c instructions.
 >
 > Mark Adler
 > madler@alumni.caltech.edu
+
+## License
+Dual licensed under Apache-2.0/MIT, at your option.
