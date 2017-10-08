@@ -1,85 +1,51 @@
-#![feature(test, cfg_target_feature)]
-extern crate libc;
-#[cfg(test)]
-extern crate rand;
-#[cfg(test)]
-extern crate test;
+//! Implements the crc32c algorithm.
 
-use libc::{c_void, uint32_t, size_t};
+#[macro_use]
+extern crate lazy_static;
 
-#[allow(dead_code)]
-extern {
-    fn crc32c_hw(crc: uint32_t, buf: *const c_void, len: size_t) -> uint32_t;
-    fn crc32c_sw(crc: uint32_t, buf: *const c_void, len: size_t) -> uint32_t;
-}
+mod util;
+mod sw;
 
 /// Computes the crc32c for the data payload.
-#[cfg(target_feature="sse4.2")]
 #[inline]
 pub fn crc32c(data: &[u8]) -> u32 {
-    let len = data.len();
-    unsafe {
-        crc32c_hw(0, data.as_ptr() as *const c_void, len) as u32
-    }
+    crc32c_append(0, data)
 }
 
-/// Computes the crc32c for the data payload.
-#[cfg(target_feature="sse4.2")]
+/// Computes the crc32c for the data payload, starting with a previous crc32c value.
 #[inline]
 pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
-    let len = data.len();
-    unsafe {
-        crc32c_hw(crc, data.as_ptr() as *const c_void, len) as u32
-    }
+    sw::crc32c(crc, data)
 }
-
-/// Computes the crc32c for the data payload.
-#[cfg(not(target_feature="sse4.2"))]
-#[inline]
-pub fn crc32c(data: &[u8]) -> u32 {
-    let len = data.len();
-    unsafe {
-        crc32c_sw(0, data.as_ptr() as *const c_void, len) as u32
-    }
-}
-
-/// Computes the crc32c for the data payload, starting with a previous CRC32C value.
-#[cfg(not(target_feature="sse4.2"))]
-#[inline]
-pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
-    let len = data.len();
-    unsafe {
-        crc32c_sw(crc, data.as_ptr() as *const c_void, len) as u32
-    }
-}
-
 
 #[cfg(test)]
 mod tests {
-    use rand::{OsRng, Rng};
     use super::*;
-    use test::Bencher;
 
     #[test]
-    fn test_crc() {
+    fn crc() {
         let v = crc32c(b"012345678910");
-        assert_eq!(0x8412e281, v);
+        assert_eq!(0x8412E281, v);
     }
 
     #[test]
-    fn test_crc_append() {
+    fn crc_append() {
         let v = crc32c(b"01234");
         let v = crc32c_append(v, b"5678910");
-        assert_eq!(0x8412e281, v);
+        assert_eq!(0x8412E281, v);
     }
 
-    #[bench]
-    fn crc(b: &mut Bencher) {
-        let mut bytes = [0u8; 8000];
+    #[test]
+    fn very_small() {
+        let v = crc32c(b"1");
+        assert_eq!(0x90F599E3, v);
+    }
 
-        let mut r = OsRng::new().unwrap();
-        r.fill_bytes(&mut bytes);
-
-        b.iter(|| crc32c(&bytes));
+    #[test]
+    fn long_string() {
+        let v = crc32c(
+            b"This is a very long string which is used to test the CRC-32-Castagnoli function.",
+        );
+        assert_eq!(0x20CB1E59, v);
     }
 }

@@ -11,6 +11,7 @@ documentation = "http://docs.rs/crc32c"
 description = "Wrapper for SSE 4.2 CRC32C instructions, with software fallback"
 
 [dependencies]
+lazy_static = "0.2"
 
 [dev-dependencies]
 rand = "0.3"
