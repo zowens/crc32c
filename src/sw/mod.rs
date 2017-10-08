@@ -7,9 +7,7 @@ use self::table::crc_at;
 
 /// Software implementation of the algorithm.
 pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
-    const MASK: u32 = 0xFFFF_FFFF;
-
-    let mut crc = (crci ^ MASK) as u64;
+    let mut crc = !crci as u64;
 
     let (start, mid, end) = util::split(buffer);
 
@@ -19,7 +17,7 @@ pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
 
     crc = crc_unaligned(crc, end);
 
-    (crc as u32) ^ MASK
+    !(crc as u32)
 }
 
 fn crc_unaligned(crci: u64, buffer: &[u8]) -> u64 {
