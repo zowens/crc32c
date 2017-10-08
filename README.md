@@ -2,7 +2,7 @@
 
 Rust implementation of the CRC-32-Castagnoli algorithm.
 
-Provides support for an optimized software implementation and a hardware accelerated (SSE 4.2) one.
+Provides support for an optimized software implementation and a hardware-accelerated (SSE 4.2) one.
 If you have SSE 4.2 enabled at compile time, it will only build the SSE implementation.
 Otherwise, it will build both versions, and use `cpuid` to choose the best implementation at run time.
 
