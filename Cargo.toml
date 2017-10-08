@@ -9,13 +9,8 @@ repository = "https://github.com/zowens/crc32c"
 homepage = "https://github.com/zowens/crc32c"
 documentation = "http://docs.rs/crc32c"
 description = "Wrapper for SSE 4.2 CRC32C instructions, with software fallback"
-build = "build.rs"
 
 [dependencies]
-libc = "0.2"
 
 [dev-dependencies]
 rand = "0.3"
-
-[build-dependencies]
-gcc = "0.3.53"
