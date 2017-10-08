@@ -12,6 +12,7 @@ description = "Wrapper for SSE 4.2 CRC32C instructions, with software fallback"
 
 [dependencies]
 lazy_static = "0.2"
+stdsimd = { git = "https://github.com/rust-lang-nursery/stdsimd" }
 
 [dev-dependencies]
 rand = "0.3"

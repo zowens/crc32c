@@ -1,10 +1,16 @@
 //! Implements the crc32c algorithm.
 
+#![feature(cfg_target_feature, target_feature)]
+
 #[macro_use]
 extern crate lazy_static;
 
+#[macro_use]
+extern crate stdsimd;
+
 mod util;
 mod sw;
+mod hw;
 
 /// Computes the crc32c for the data payload.
 #[inline]
@@ -15,7 +21,11 @@ pub fn crc32c(data: &[u8]) -> u32 {
 /// Computes the crc32c for the data payload, starting with a previous crc32c value.
 #[inline]
 pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
-    sw::crc32c(crc, data)
+    if cfg_feature_enabled!("sse4.2") {
+        hw::crc32c(crc, data)
+    } else {
+        sw::crc32c(crc, data)
+    }
 }
 
 #[cfg(test)]
