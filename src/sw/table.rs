@@ -13,7 +13,9 @@ impl CrcTable {
     /// Returns an entry from the table.
     #[inline]
     pub fn at(&self, i: u8, j: u8) -> u64 {
-        unsafe { *self.0.get_unchecked(i as usize).get_unchecked(j as usize) as u64 }
+        let i = i as usize;
+        let j = j as usize;
+        self.0[i][j] as u64
     }
 }
 
@@ -23,13 +25,18 @@ lazy_static! {
         let mut table: [[u32; 256]; 8] = unsafe { mem::uninitialized() };
 
         for n in 0..256 {
-            table[0][n as usize] = (0..8).fold(n, |crc, _| {
+            let mut crc = n;
+
+            for _ in 0..8 {
                 if crc % 2 == 0 {
-                    crc >> 1
+                    crc /= 2;
                 } else {
-                    (crc >> 1) ^ util::POLYNOMIAL
+                    crc /= 2;
+                    crc ^= util::POLYNOMIAL;
                 }
-            });
+            }
+
+            table[0][n as usize] = crc;
         }
 
         for n in 0..256 {
