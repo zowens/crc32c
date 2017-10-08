@@ -1,19 +1,26 @@
 use util;
 use std::mem;
 
-/// Returns an entry from the table.
-#[inline]
-pub fn crc_at(i: u8, j: u8) -> u64 {
-    unsafe { *TABLE.get_unchecked(j as usize).get_unchecked(i as usize) as u64 }
-}
-
 /// 8-KiB lookup table.
-type CrcTable = [[u32; 256]; 8];
+pub struct CrcTable([[u32; 256]; 8]);
+
+impl CrcTable {
+    /// Returns a pre-made CRC32 table.
+    pub fn table() -> &'static CrcTable {
+        &TABLE
+    }
+
+    /// Returns an entry from the table.
+    #[inline]
+    pub fn at(&self, i: u8, j: u8) -> u64 {
+        unsafe { *self.0.get_unchecked(i as usize).get_unchecked(j as usize) as u64 }
+    }
+}
 
 lazy_static! {
     /// Table for a quadword-at-a-time software CRC.
     static ref TABLE: CrcTable = {
-        let mut table: CrcTable = unsafe { mem::uninitialized() };
+        let mut table: [[u32; 256]; 8] = unsafe { mem::uninitialized() };
 
         for n in 0..256 {
             table[0][n as usize] = (0..8).fold(n, |crc, _| {
@@ -33,6 +40,6 @@ lazy_static! {
             }
         }
 
-        table
+        CrcTable(table)
     };
 }
