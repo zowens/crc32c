@@ -20,22 +20,18 @@ pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
 }
 
 fn crc_u8(crc: u32, buffer: &[u8]) -> u32 {
-    buffer.iter().fold(crc,
-        #[target_feature = "+sse4.2"] |crc, &next| {
-            unsafe {
-                self::simd::_mm_crc32_u8(crc, next)
-            }
-        })
+    buffer.iter().fold(crc, #[target_feature = "+sse4.2"]
+    |crc, &next| unsafe {
+        self::simd::_mm_crc32_u8(crc, next)
+    })
 }
 
 fn crc_u64(crc: u32, buffer: &[u64]) -> u32 {
     let crc = crc as u64;
 
-    let crc = buffer.iter().fold(crc,
-    #[target_feature = "+sse4.2"] |crc, &next| {
-        unsafe {
-            self::simd::_mm_crc32_u64(crc, next)
-        }
+    let crc = buffer.iter().fold(crc, #[target_feature = "+sse4.2"]
+    |crc, &next| unsafe {
+        self::simd::_mm_crc32_u64(crc, next)
     });
 
     crc as u32
