@@ -30,12 +30,14 @@ fn crc_unaligned(crci: u64, buffer: &[u8]) -> u64 {
 }
 
 fn crc_aligned(crci: u64, buffer: &[u64]) -> u64 {
-    buffer.iter().fold(crci, |mut crc, &next| {
-        crc ^= next;
+    buffer.iter().fold(crci, |crc, &next| {
+        let crc = crc ^ next;
 
-        crc_at(7, crc as u8) ^ crc_at(6, (crc >> 8) as u8) ^ crc_at(5, (crc >> 16) as u8) ^
-            crc_at(4, (crc >> 24) as u8) ^ crc_at(3, (crc >> 32) as u8) ^
-            crc_at(2, (crc >> 40) as u8) ^
-            crc_at(1, (crc >> 48) as u8) ^ crc_at(0, (crc >> 56) as u8)
+        (1..8).fold(crc_at(7, crc as u8), |tmp, i| {
+            let row = 7 - i;
+            let shift = 8 * i;
+            let column = (crc >> shift) as u8;
+            tmp ^ crc_at(row, column)
+        })
     })
 }
