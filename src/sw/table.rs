@@ -2,8 +2,9 @@ use util;
 use std::mem;
 
 /// Returns an entry from the table.
+#[inline]
 pub fn crc_at(i: u8, j: u8) -> u64 {
-    u64::from(TABLE[i as usize][j as usize])
+    unsafe { *TABLE.get_unchecked(j as usize).get_unchecked(i as usize) as u64 }
 }
 
 /// 8-KiB lookup table.
