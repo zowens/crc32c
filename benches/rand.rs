@@ -9,7 +9,6 @@ use rand::{OsRng, Rng};
 extern crate crc32c;
 use crc32c::crc32c;
 
-
 #[bench]
 fn crc(b: &mut Bencher) {
     let mut bytes = [0u8; 8192];
