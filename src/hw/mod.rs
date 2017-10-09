@@ -24,10 +24,7 @@ pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
 
     let (middle_first, middle_last) = middle.split_at(last_chunk);
 
-    let crc_good = crc_u64(crc0, middle_first);
     crc0 = crc_u64_parallel3(crc0, chunk_size, &table::LONG_TABLE, middle_first);
-
-    assert_eq!(crc_good, crc0);
 
     let chunk_size = (table::SHORT * 3) / 8;
     let last_chunk = middle_last.len() / chunk_size * chunk_size;
