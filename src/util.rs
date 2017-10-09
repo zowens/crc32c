@@ -11,10 +11,14 @@ pub fn split(buffer: &[u8]) -> (&[u8], &[u64], &[u8]) {
     let (start, mid) = {
         let split_index = {
             let addr = buffer.as_ptr() as usize;
+
+            // Align to multiples of 8.
             let aligned_addr = (addr + 7) & (!7);
 
+            // Index of the next aligned element.
             let next_i = aligned_addr - addr;
 
+            // Buffer might be too small.
             cmp::min(next_i, buffer.len())
         };
 
@@ -22,6 +26,7 @@ pub fn split(buffer: &[u8]) -> (&[u8], &[u64], &[u8]) {
     };
 
     let (mid, end) = {
+        // Round length down to multiples of 8.
         let split_index = mid.len() & (!7);
 
         mid.split_at(split_index)

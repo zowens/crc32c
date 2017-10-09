@@ -67,11 +67,9 @@ fn create_zero_operator(mut len: usize) -> Matrix {
     let mut odd = Matrix::new();
 
     odd[0] = util::POLYNOMIAL;
-    let mut row = 1;
 
     for i in 1..32 {
-        odd[i] = row;
-        row *= 2;
+        odd[i] = 1 << (i - 1);
     }
 
     let mut even = odd.square();
@@ -117,7 +115,7 @@ impl CrcTable {
     pub fn at(&self, i: u8, j: u8) -> u64 {
         let i = i as usize;
         let j = j as usize;
-        self.0[i][j] as u64
+        u64::from(self.0[i][j])
     }
 
     pub fn shift(&self, crc: u64) -> u64 {

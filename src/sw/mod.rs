@@ -9,7 +9,7 @@ use self::table::CrcTable;
 pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
     let table = CrcTable::table();
 
-    let mut crc = (!crci) as u64;
+    let mut crc = u64::from(!crci);
 
     let (start, mid, end) = util::split(buffer);
 
@@ -24,7 +24,7 @@ pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
 
 fn crc_u8(table: &CrcTable, crc: u64, buffer: &[u8]) -> u64 {
     buffer.iter().fold(crc, |crc, &next| {
-        let index = (crc ^ (next as u64)) as u8;
+        let index = (crc ^ u64::from(next)) as u8;
         table.at(0, index) ^ (crc >> 8)
     })
 }

@@ -8,7 +8,7 @@ mod table;
 
 /// Computes CRC-32C using the SSE 4.2 hardware instruction.
 pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
-    let mut crc0 = (!crci) as u64;
+    let mut crc0 = u64::from(!crci);
 
     let (begin, middle, end) = util::split(buffer);
 
@@ -19,6 +19,7 @@ pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
     // meaning we must use 3 of them at a time, to leverage
     // hardware parallelism.
 
+    // First do chunks of size LONG * 3.
     let chunk_size = (table::LONG * 3) / 8;
     let last_chunk = middle.len() / chunk_size * chunk_size;
 
@@ -26,6 +27,7 @@ pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
 
     crc0 = crc_u64_parallel3(crc0, chunk_size, &table::LONG_TABLE, middle_first);
 
+    // Now do chunks of size SHORT * 3.
     let chunk_size = (table::SHORT * 3) / 8;
     let last_chunk = middle_last.len() / chunk_size * chunk_size;
 
@@ -33,33 +35,36 @@ pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
 
     crc0 = crc_u64_parallel3(crc0, chunk_size, &table::SHORT_TABLE, middle_last_first);
 
+    // Now the last part, less than SHORT * 3 but still a multiple of 8-bytes.
     crc0 = crc_u64(crc0, middle_last_last);
 
+    // Final unaligned remainder.
     crc0 = crc_u8(crc0, end);
 
     !(crc0 as u32)
 }
 
+#[inline]
 fn crc_u8(crc: u64, buffer: &[u8]) -> u64 {
-    buffer.iter().fold(
-        crc, #[target_feature = "+sse4.2"]
-        #[target_feature = "+sse4.2"]
-        |crc, &next| unsafe { self::simd::_mm_crc32_u8(crc as u32, next) as u64 },
-    )
+    buffer.iter().fold(crc, #[target_feature = "+sse4.2"]
+    |crc, &next| unsafe {
+        u64::from(self::simd::_mm_crc32_u8(crc as u32, next))
+    })
 }
 
+#[inline]
 fn crc_u64(crc: u64, buffer: &[u64]) -> u64 {
-    buffer.iter().fold(
-        crc, #[target_feature = "+sse4.2"]
-        #[target_feature = "+sse4.2"]
-        |crc, &next| unsafe { self::simd::_mm_crc32_u64(crc, next) },
-    )
+    buffer.iter().fold(crc, #[target_feature = "+sse4.2"]
+    |crc, &next| unsafe {
+        self::simd::_mm_crc32_u64(crc, next)
+    })
 }
 
 /// Hardware-parallel version of the algorithm.
+#[inline]
 fn crc_u64_parallel3(crc: u64, chunk_size: usize, table: &table::CrcTable, buffer: &[u64]) -> u64 {
     buffer.chunks(chunk_size).fold(
-        crc, #[target_feature = "+sse4.2"]
+        crc,
         #[target_feature = "+sse4.2"]
         |mut crc0, chunk| {
             let mut crc1 = 0;

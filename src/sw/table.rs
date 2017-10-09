@@ -15,7 +15,7 @@ impl CrcTable {
     pub fn at(&self, i: u8, j: u8) -> u64 {
         let i = i as usize;
         let j = j as usize;
-        self.0[i][j] as u64
+        u64::from(self.0[i][j])
     }
 }
 

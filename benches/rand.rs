@@ -11,7 +11,7 @@ use crc32c::crc32c;
 
 #[bench]
 fn crc(b: &mut Bencher) {
-    let mut bytes = [0u8; 32768];
+    let mut bytes = [0u8; 8192 * 4];
 
     let mut r = OsRng::new().unwrap();
     r.fill_bytes(&mut bytes);
