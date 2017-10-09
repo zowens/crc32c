@@ -1,22 +1,23 @@
-// below 1500 ns
-
 use util;
 use std::{mem, ops};
 
-// A matrix over Galois Field 2, 32x32 (each bit is an element).
+/// A matrix over the Galois field of two elements (0 and 1).
+/// In this field, multiplication is equivalent to the (very fast) bitwise XOR.
 #[derive(Debug, Copy, Clone)]
-struct Matrix([u32; 32]);
+pub struct Matrix([u32; 32]);
 
 impl Matrix {
+    /// Allocates space for a new matrix.
     fn new() -> Self {
         unsafe { mem::uninitialized() }
     }
 
+    /// Multiplies a matrix by itself.
     fn square(self) -> Self {
         let mut result = Self::new();
 
-        for i in 0..self.0.len() {
-            result.0[i] = self * self.0[i];
+        for i in 0..32 {
+            result[i] = self * self[i];
         }
 
         result
@@ -39,19 +40,17 @@ impl ops::IndexMut<u8> for Matrix {
     }
 }
 
-
 impl ops::Mul<u32> for Matrix {
     type Output = u32;
 
+    /// Multiplies the matrix with a vector.
     fn mul(self, mut vec: u32) -> Self::Output {
-        // TODO: improve
-
         let mut sum = 0;
         let mut i = 0;
 
         while vec != 0 {
-            if vec % 2 == 0 {
-                sum ^= self.0[i];
+            if vec % 2 != 0 {
+                sum ^= self[i];
             }
 
             vec /= 2;
@@ -63,7 +62,7 @@ impl ops::Mul<u32> for Matrix {
     }
 }
 
-fn zeros_operator(mut len: usize) -> Matrix {
+fn create_zero_operator(mut len: usize) -> Matrix {
     // Operator for odd powers-of-two.
     let mut odd = Matrix::new();
 
@@ -72,7 +71,7 @@ fn zeros_operator(mut len: usize) -> Matrix {
 
     for i in 1..32 {
         odd[i] = row;
-        row <<= 1;
+        row *= 2;
     }
 
     let mut even = odd.square();
@@ -103,7 +102,7 @@ pub struct CrcTable([[u32; 256]; 4]);
 impl CrcTable {
     fn new(len: usize) -> Self {
         let mut zeroes: [[u32; 256]; 4] = unsafe { mem::uninitialized() };
-        let op = zeros_operator(len);
+        let op = create_zero_operator(len);
 
         for n in 0..256 {
             for i in 0..4 {
@@ -128,10 +127,33 @@ impl CrcTable {
 }
 
 pub const LONG: usize = 8192;
-
 pub const SHORT: usize = 256;
 
 lazy_static! {
 	pub static ref LONG_TABLE: CrcTable = CrcTable::new(LONG);
 	pub static ref SHORT_TABLE: CrcTable = CrcTable::new(SHORT);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn matrix_multiply() {
+        let mut mat = Matrix::new();
+
+        for i in 0..3 {
+            mat[i] = i as u32;
+        }
+
+        let vec = 0b111;
+
+        assert_eq!(mat * vec, 3);
+    }
+
+    #[test]
+    fn zero_op() {
+        let op = create_zero_operator(8192);
+        assert_eq!(op[0], 0xe040e0ac);
+    }
 }
