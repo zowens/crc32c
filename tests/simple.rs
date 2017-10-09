@@ -32,7 +32,7 @@ fn long_string() {
 // Tests a 32-KiB buffer.
 #[test]
 fn very_big() {
-	let buf = String::from("Hello!.\n").repeat(32768);
+    let buf = String::from("Hello!.\n").repeat(32768);
 
-	assert_eq!(0x12bd9191, crc32c::crc32c(buf.as_bytes()));
+    assert_eq!(0x12bd9191, crc32c::crc32c(buf.as_bytes()));
 }
