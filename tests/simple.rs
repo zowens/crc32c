@@ -14,6 +14,7 @@ fn crc_append() {
     assert_eq!(0x8412E281, v);
 }
 
+// Tests the smallest possible message.
 #[test]
 fn very_small() {
     let v = crc32c(b"1");
@@ -26,4 +27,12 @@ fn long_string() {
         b"This is a very long string which is used to test the CRC-32-Castagnoli function.",
     );
     assert_eq!(0x20CB1E59, v);
+}
+
+// Tests a 32-KiB buffer.
+#[test]
+fn very_big() {
+	let buf = String::from("Hello!.\n").repeat(32768);
+
+	assert_eq!(0x12bd9191, crc32c::crc32c(buf.as_bytes()));
 }
