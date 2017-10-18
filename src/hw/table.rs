@@ -119,8 +119,14 @@ impl CrcTable {
     }
 
     pub fn shift(&self, crc: u64) -> u64 {
-        self.at(0, crc as u8) ^ self.at(1, (crc >> 8) as u8) ^ self.at(2, (crc >> 16) as u8) ^
-            self.at(3, (crc >> 24) as u8)
+        let mut result = self.at(0, crc as u8);
+
+        for i in 1..4 {
+            let shift = i * 8;
+            result ^= self.at(i, (crc >> shift) as u8);
+        }
+
+        result
     }
 }
 
