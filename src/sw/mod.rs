@@ -22,6 +22,7 @@ pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
     !(crc as u32)
 }
 
+#[inline]
 fn crc_u8(table: &CrcTable, crc: u64, buffer: &[u8]) -> u64 {
     buffer.iter().fold(crc, |crc, &next| {
         let index = (crc ^ u64::from(next)) as u8;
@@ -29,15 +30,16 @@ fn crc_u8(table: &CrcTable, crc: u64, buffer: &[u8]) -> u64 {
     })
 }
 
+#[inline]
 fn crc_u64(table: &CrcTable, crci: u64, buffer: &[u64]) -> u64 {
     buffer.iter().fold(crci, |crc, &next| {
         let crc = crc ^ next;
 
-        (1..8).fold(table.at(7, crc as u8), |tmp, i| {
-            let row = 7 - i;
-            let shift = 8 * i;
-            let column = (crc >> shift) as u8;
-            tmp ^ table.at(row, column)
-        })
+        // Note: I've tried refactoring this to a for-loop,
+        // but then it gets worse performance.
+        table.at(7, crc as u8) ^ table.at(6, (crc >> 8) as u8) ^ table.at(5, (crc >> 16) as u8) ^
+            table.at(4, (crc >> 24) as u8) ^
+            table.at(3, (crc >> 32) as u8) ^ table.at(2, (crc >> 40) as u8) ^
+            table.at(1, (crc >> 48) as u8) ^ table.at(0, (crc >> 56) as u8)
     })
 }
