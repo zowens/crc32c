@@ -47,27 +47,29 @@ pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
 #[inline]
 #[target_feature = "+sse4.2"]
 fn crc_u8_append(crc: u64, next: u8) -> u64 {
-    unsafe {
-        u64::from(self::simd::_mm_crc32_u8(crc as u32, next))
-    }
+    unsafe { u64::from(self::simd::_mm_crc32_u8(crc as u32, next)) }
 }
 
 #[inline]
 #[target_feature = "+sse4.2"]
 fn crc_u64_append(crc: u64, next: u64) -> u64 {
-    unsafe {
-        self::simd::_mm_crc32_u64(crc, next)
-    }
+    unsafe { self::simd::_mm_crc32_u64(crc, next) }
 }
 
 #[inline]
 fn crc_u8(crc: u64, buffer: &[u8]) -> u64 {
-    buffer.iter().fold(crc, |crc, &next| crc_u8_append(crc, next))
+    buffer.iter().fold(
+        crc,
+        |crc, &next| crc_u8_append(crc, next),
+    )
 }
 
 #[inline]
 fn crc_u64(crc: u64, buffer: &[u64]) -> u64 {
-    buffer.iter().fold(crc, |crc, &next| crc_u64_append(crc, next))
+    buffer.iter().fold(
+        crc,
+        |crc, &next| crc_u64_append(crc, next),
+    )
 }
 
 /// Hardware-parallel version of the algorithm.
@@ -78,30 +80,27 @@ fn crc_u64(crc: u64, buffer: &[u64]) -> u64 {
 /// Uses a pre-made CRC table designed for the given chunk size.
 #[inline]
 fn crc_u64_parallel3(crc: u64, chunk_size: usize, table: &table::CrcTable, buffer: &[u64]) -> u64 {
-    buffer.chunks(chunk_size).fold(
-        crc,
-        |mut crc0, chunk| {
-            let mut crc1 = 0;
-            let mut crc2 = 0;
+    buffer.chunks(chunk_size).fold(crc, |mut crc0, chunk| {
+        let mut crc1 = 0;
+        let mut crc2 = 0;
 
-            // Divide it in three.
-            let block_size = chunk_size / 3;
+        // Divide it in three.
+        let block_size = chunk_size / 3;
 
-            let mut blocks = chunk.chunks(block_size);
-            let a = blocks.next().unwrap();
-            let b = blocks.next().unwrap();
-            let c = blocks.next().unwrap();
+        let mut blocks = chunk.chunks(block_size);
+        let a = blocks.next().unwrap();
+        let b = blocks.next().unwrap();
+        let c = blocks.next().unwrap();
 
-            for i in 0..block_size {
-                crc0 = crc_u64_append(crc0, a[i]);
-                crc1 = crc_u64_append(crc1, b[i]);
-                crc2 = crc_u64_append(crc2, c[i]);
-            }
+        for i in 0..block_size {
+            crc0 = crc_u64_append(crc0, a[i]);
+            crc1 = crc_u64_append(crc1, b[i]);
+            crc2 = crc_u64_append(crc2, c[i]);
+        }
 
-            crc0 = table.shift(crc0) ^ crc1;
-            crc0 = table.shift(crc0) ^ crc2;
+        crc0 = table.shift(crc0) ^ crc1;
+        crc0 = table.shift(crc0) ^ crc2;
 
-            crc0
-        },
-    )
+        crc0
+    })
 }
