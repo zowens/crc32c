@@ -1,5 +1,8 @@
 # CRC32C
 
+[![Crates.io](https://img.shields.io/crates/v/crc32c.svg)](https://crates.io/crates/crc32c)
+[![Docs.rs](https://docs.rs/crc32c/badge.svg)](https://docs.rs/crc32c/)
+
 Rust implementation of the CRC-32-Castagnoli algorithm.
 
 Provides support for an optimized software implementation and a hardware-accelerated (SSE 4.2) one.
