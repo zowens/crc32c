@@ -1,7 +1,4 @@
-use std::{cmp, mem, slice};
-
-/// CRC-32-Castagnoli polynomial in reversed bit order.
-pub const POLYNOMIAL: u32 = 0x82_F6_3B_78;
+use core::{cmp, mem, slice};
 
 /// Splits a buffer into three subslices:
 /// - the first one is up to the first 8-byte aligned address.
