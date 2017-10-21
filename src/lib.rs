@@ -22,8 +22,7 @@
 
 #![feature(cfg_target_feature, target_feature)]
 
-#[macro_use]
-extern crate lazy_static;
+#![no_std]
 
 #[macro_use]
 extern crate stdsimd;

@@ -4,7 +4,31 @@ use util;
 
 use stdsimd::vendor as simd;
 
-mod table;
+pub struct CrcTable([[u32; 256]; 4]);
+
+impl CrcTable {
+    pub fn at(&self, i: u8, j: u8) -> u64 {
+        let i = i as usize;
+        let j = j as usize;
+        u64::from(self.0[i][j])
+    }
+
+    pub fn shift(&self, crc: u64) -> u64 {
+        let mut result = self.at(0, crc as u8);
+
+        for i in 1..4 {
+            let shift = i * 8;
+            result ^= self.at(i, (crc >> shift) as u8);
+        }
+
+        result
+    }
+}
+
+const LONG: usize = 8192;
+const SHORT: usize = 256;
+const LONG_TABLE: CrcTable = CrcTable(include!(concat!(env!("OUT_DIR"), "/", "hw.long.table")));
+const SHORT_TABLE: CrcTable = CrcTable(include!(concat!(env!("OUT_DIR"), "/", "hw.short.table")));
 
 /// Computes CRC-32C using the SSE 4.2 hardware instruction.
 pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
@@ -20,20 +44,20 @@ pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
     // hardware parallelism.
 
     // First do chunks of size LONG * 3.
-    let chunk_size = (table::LONG * 3) / 8;
+    let chunk_size = (LONG * 3) / 8;
     let last_chunk = middle.len() / chunk_size * chunk_size;
 
     let (middle_first, middle_last) = middle.split_at(last_chunk);
 
-    crc0 = crc_u64_parallel3(crc0, chunk_size, &table::LONG_TABLE, middle_first);
+    crc0 = crc_u64_parallel3(crc0, chunk_size, &LONG_TABLE, middle_first);
 
     // Now do chunks of size SHORT * 3.
-    let chunk_size = (table::SHORT * 3) / 8;
+    let chunk_size = (SHORT * 3) / 8;
     let last_chunk = middle_last.len() / chunk_size * chunk_size;
 
     let (middle_last_first, middle_last_last) = middle_last.split_at(last_chunk);
 
-    crc0 = crc_u64_parallel3(crc0, chunk_size, &table::SHORT_TABLE, middle_last_first);
+    crc0 = crc_u64_parallel3(crc0, chunk_size, &SHORT_TABLE, middle_last_first);
 
     // Now the last part, less than SHORT * 3 but still a multiple of 8-bytes.
     crc0 = crc_u64(crc0, middle_last_last);
@@ -79,7 +103,7 @@ fn crc_u64(crc: u64, buffer: &[u64]) -> u64 {
 ///
 /// Uses a pre-made CRC table designed for the given chunk size.
 #[inline]
-fn crc_u64_parallel3(crc: u64, chunk_size: usize, table: &table::CrcTable, buffer: &[u64]) -> u64 {
+fn crc_u64_parallel3(crc: u64, chunk_size: usize, table: &CrcTable, buffer: &[u64]) -> u64 {
     buffer.chunks(chunk_size).fold(crc, |mut crc0, chunk| {
         let mut crc1 = 0;
         let mut crc2 = 0;

@@ -2,12 +2,24 @@
 
 use util;
 
-mod table;
-use self::table::CrcTable;
+/// 8-KiB lookup table.
+pub struct CrcTable([[u32; 256]; 8]);
+
+impl CrcTable {
+    /// Returns an entry from the table.
+    #[inline]
+    pub fn at(&self, i: u8, j: u8) -> u64 {
+        let i = i as usize;
+        let j = j as usize;
+        u64::from(self.0[i][j])
+    }
+}
+
+const CRC_TABLE: CrcTable = CrcTable(include!(concat!(env!("OUT_DIR"), "/", "sw.table")));
 
 /// Software implementation of the algorithm.
 pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
-    let table = CrcTable::table();
+    let table = &CRC_TABLE;
 
     let mut crc = u64::from(!crci);
 

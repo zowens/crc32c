@@ -13,9 +13,9 @@ exclude = [
     "benches/*",
     "tests/*",
 ]
+build = "build.rs"
 
 [dependencies]
-lazy_static = "0.2"
 stdsimd = { git = "https://github.com/rust-lang-nursery/stdsimd" }
 
 [dev-dependencies]
