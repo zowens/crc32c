@@ -16,7 +16,7 @@ exclude = [
 build = "build.rs"
 
 [dependencies]
-stdsimd = { git = "https://github.com/rust-lang-nursery/stdsimd" }
+stdsimd = "0.0.3"
 
 [dev-dependencies]
 rand = "0.3"
