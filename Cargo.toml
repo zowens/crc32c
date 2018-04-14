@@ -1,6 +1,6 @@
 [package]
 name = "crc32c"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Zack Owens"]
 license = "Apache-2.0/MIT"
 keywords = ["crc", "simd"]
@@ -15,8 +15,5 @@ exclude = [
 ]
 build = "build.rs"
 
-[dependencies]
-stdsimd = "0.0.3"
-
 [dev-dependencies]
-rand = "0.3"
+rand = "0.4"

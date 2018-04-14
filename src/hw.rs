@@ -2,7 +2,7 @@
 
 use util;
 
-use stdsimd::vendor as simd;
+use std::arch::x86_64 as simd;
 
 pub struct CrcTable([[u32; 256]; 4]);
 
@@ -69,31 +69,35 @@ pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
 }
 
 #[inline]
-#[target_feature = "+sse4.2"]
-fn crc_u8_append(crc: u64, next: u8) -> u64 {
-    unsafe { u64::from(self::simd::_mm_crc32_u8(crc as u32, next)) }
+#[target_feature(enable = "sse4.2")]
+unsafe fn crc_u8_append(crc: u64, next: u8) -> u64 {
+    u64::from(self::simd::_mm_crc32_u8(crc as u32, next))
 }
 
 #[inline]
-#[target_feature = "+sse4.2"]
-fn crc_u64_append(crc: u64, next: u64) -> u64 {
-    unsafe { self::simd::_mm_crc32_u64(crc, next) }
+#[target_feature(enable = "sse4.2")]
+unsafe fn crc_u64_append(crc: u64, next: u64) -> u64 {
+    self::simd::_mm_crc32_u64(crc, next)
 }
 
 #[inline]
 fn crc_u8(crc: u64, buffer: &[u8]) -> u64 {
-    buffer.iter().fold(
-        crc,
-        |crc, &next| crc_u8_append(crc, next),
-    )
+    unsafe {
+        buffer.iter().fold(
+            crc,
+            |crc, &next| crc_u8_append(crc, next),
+            )
+    }
 }
 
 #[inline]
 fn crc_u64(crc: u64, buffer: &[u64]) -> u64 {
-    buffer.iter().fold(
-        crc,
-        |crc, &next| crc_u64_append(crc, next),
-    )
+    unsafe {
+        buffer.iter().fold(
+            crc,
+            |crc, &next| crc_u64_append(crc, next),
+        )
+    }
 }
 
 /// Hardware-parallel version of the algorithm.
@@ -117,9 +121,11 @@ fn crc_u64_parallel3(crc: u64, chunk_size: usize, table: &CrcTable, buffer: &[u6
         let c = blocks.next().unwrap();
 
         for i in 0..block_size {
-            crc0 = crc_u64_append(crc0, a[i]);
-            crc1 = crc_u64_append(crc1, b[i]);
-            crc2 = crc_u64_append(crc2, c[i]);
+            unsafe {
+                crc0 = crc_u64_append(crc0, a[i]);
+                crc1 = crc_u64_append(crc1, b[i]);
+                crc2 = crc_u64_append(crc2, c[i]);
+            }
         }
 
         crc0 = table.shift(crc0) ^ crc1;

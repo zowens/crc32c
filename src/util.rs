@@ -1,4 +1,4 @@
-use core::{cmp, mem, slice};
+use std::{cmp, mem, slice};
 
 /// Splits a buffer into three subslices:
 /// - the first one is up to the first 8-byte aligned address.
