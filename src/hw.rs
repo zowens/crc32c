@@ -83,20 +83,18 @@ unsafe fn crc_u64_append(crc: u64, next: u64) -> u64 {
 #[inline]
 fn crc_u8(crc: u64, buffer: &[u8]) -> u64 {
     unsafe {
-        buffer.iter().fold(
-            crc,
-            |crc, &next| crc_u8_append(crc, next),
-            )
+        buffer
+            .iter()
+            .fold(crc, |crc, &next| crc_u8_append(crc, next))
     }
 }
 
 #[inline]
 fn crc_u64(crc: u64, buffer: &[u64]) -> u64 {
     unsafe {
-        buffer.iter().fold(
-            crc,
-            |crc, &next| crc_u64_append(crc, next),
-        )
+        buffer
+            .iter()
+            .fold(crc, |crc, &next| crc_u64_append(crc, next))
     }
 }
 

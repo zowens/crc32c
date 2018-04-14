@@ -23,9 +23,8 @@ fn very_small() {
 
 #[test]
 fn long_string() {
-    let v = crc32c(
-        b"This is a very long string which is used to test the CRC-32-Castagnoli function.",
-    );
+    let v =
+        crc32c(b"This is a very long string which is used to test the CRC-32-Castagnoli function.");
     assert_eq!(0x20_CB_1E_59, v);
 }
 

@@ -22,9 +22,9 @@
 
 #![feature(cfg_target_feature, target_feature, stdsimd)]
 
-mod util;
-mod sw;
 mod hw;
+mod sw;
+mod util;
 
 /// Computes the CRC for the data payload.
 ///
