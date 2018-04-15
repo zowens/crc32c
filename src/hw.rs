@@ -31,7 +31,7 @@ const LONG_TABLE: CrcTable = CrcTable(include!(concat!(env!("OUT_DIR"), "/", "hw
 const SHORT_TABLE: CrcTable = CrcTable(include!(concat!(env!("OUT_DIR"), "/", "hw.short.table")));
 
 /// Computes CRC-32C using the SSE 4.2 hardware instruction.
-pub fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
+pub unsafe fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
     let mut crc0 = u64::from(!crci);
 
     let (begin, middle, end) = util::split(buffer);
@@ -81,21 +81,17 @@ unsafe fn crc_u64_append(crc: u64, next: u64) -> u64 {
 }
 
 #[inline]
-fn crc_u8(crc: u64, buffer: &[u8]) -> u64 {
-    unsafe {
-        buffer
-            .iter()
-            .fold(crc, |crc, &next| crc_u8_append(crc, next))
-    }
+unsafe fn crc_u8(crc: u64, buffer: &[u8]) -> u64 {
+    buffer
+        .iter()
+        .fold(crc, |crc, &next| crc_u8_append(crc, next))
 }
 
 #[inline]
-fn crc_u64(crc: u64, buffer: &[u64]) -> u64 {
-    unsafe {
-        buffer
-            .iter()
-            .fold(crc, |crc, &next| crc_u64_append(crc, next))
-    }
+unsafe fn crc_u64(crc: u64, buffer: &[u64]) -> u64 {
+    buffer
+        .iter()
+        .fold(crc, |crc, &next| crc_u64_append(crc, next))
 }
 
 /// Hardware-parallel version of the algorithm.
@@ -105,7 +101,7 @@ fn crc_u64(crc: u64, buffer: &[u64]) -> u64 {
 ///
 /// Uses a pre-made CRC table designed for the given chunk size.
 #[inline]
-fn crc_u64_parallel3(crc: u64, chunk_size: usize, table: &CrcTable, buffer: &[u64]) -> u64 {
+unsafe fn crc_u64_parallel3(crc: u64, chunk_size: usize, table: &CrcTable, buffer: &[u64]) -> u64 {
     buffer.chunks(chunk_size).fold(crc, |mut crc0, chunk| {
         let mut crc1 = 0;
         let mut crc2 = 0;
@@ -119,11 +115,9 @@ fn crc_u64_parallel3(crc: u64, chunk_size: usize, table: &CrcTable, buffer: &[u6
         let c = blocks.next().unwrap();
 
         for i in 0..block_size {
-            unsafe {
-                crc0 = crc_u64_append(crc0, a[i]);
-                crc1 = crc_u64_append(crc1, b[i]);
-                crc2 = crc_u64_append(crc2, c[i]);
-            }
+            crc0 = crc_u64_append(crc0, a[i]);
+            crc1 = crc_u64_append(crc1, b[i]);
+            crc2 = crc_u64_append(crc2, c[i]);
         }
 
         crc0 = table.shift(crc0) ^ crc1;

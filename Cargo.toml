@@ -1,6 +1,6 @@
 [package]
 name = "crc32c"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Zack Owens"]
 license = "Apache-2.0/MIT"
 keywords = ["crc", "simd"]
