@@ -20,7 +20,7 @@
 //! Otherwise, the crate will use `cpuid` at runtime to detect the
 //! running CPU's features, and enable the appropiate algorithm.
 
-#![feature(cfg_target_feature, target_feature, stdsimd)]
+#![feature(stdsimd)]
 
 mod hw;
 mod sw;
