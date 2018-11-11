@@ -1,20 +1,25 @@
-#![feature(test)]
-
-extern crate test;
-use test::Bencher;
-
+#[macro_use]
+extern crate criterion;
 extern crate rand;
-use rand::{OsRng, Rng};
-
 extern crate crc32c;
+
+use criterion::{Criterion, Benchmark, Throughput};
+use rand::{OsRng, Rng};
 use crc32c::crc32c;
 
-#[bench]
-fn crc(b: &mut Bencher) {
-    let mut bytes = [0u8; 8192 * 4];
+fn crc32c_megabyte(c: &mut Criterion) {
+    let mut bytes = [0u8; 1_000_000];
 
     let mut r = OsRng::new().unwrap();
     r.fill_bytes(&mut bytes);
 
-    b.iter(|| crc32c(&bytes));
+    c.bench(
+        "crc32_update_megabytes",
+        Benchmark::new("crc32_update_megabytes", move |b| {
+            b.iter(|| crc32c(&bytes))
+        }).throughput(Throughput::Bytes(1_000_000)),
+    );
 }
+
+criterion_group!(crc, crc32c_megabyte);
+criterion_main!(crc);
