@@ -5,8 +5,6 @@ pub const POLYNOMIAL: u32 = 0x82_F6_3B_78;
 
 /// Table for a quadword-at-a-time software CRC.
 fn sw_table() -> [[u32; 256]; 8] {
-    use std::mem;
-
     let mut table: [[u32; 256]; 8] = unsafe { mem::uninitialized() };
 
     for n in 0..256 {

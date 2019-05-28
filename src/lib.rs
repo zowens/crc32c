@@ -20,6 +20,7 @@
 //! Otherwise, the crate will use `cpuid` at runtime to detect the
 //! running CPU's features, and enable the appropiate algorithm.
 
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 mod hw;
 mod sw;
 mod util;
@@ -34,10 +35,16 @@ pub fn crc32c(data: &[u8]) -> u32 {
 
 /// Computes the CRC for the data payload, starting with a previous CRC value.
 #[inline]
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
     if is_x86_feature_detected!("sse4.2") {
         unsafe { hw::crc32c(crc, data) }
     } else {
         sw::crc32c(crc, data)
     }
+}
+
+#[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
+    sw::crc32c(crc, data)
 }
