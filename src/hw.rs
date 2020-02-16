@@ -1,6 +1,6 @@
 //! Implements crc32c with SSE 4.2 support.
 
-use util;
+use crate::util;
 
 use std::arch::x86_64 as simd;
 

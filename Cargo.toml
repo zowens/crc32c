@@ -8,6 +8,7 @@ categories = ["algorithms"]
 repository = "https://github.com/zowens/crc32c"
 homepage = "https://github.com/zowens/crc32c"
 documentation = "http://docs.rs/crc32c"
+edition = "2018"
 description = "Safe implementation for SSE 4.2 CRC32C instructions, with software fallback"
 exclude = [
     "benches/*",

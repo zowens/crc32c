@@ -1,4 +1,5 @@
-use std::{mem, ops};
+use std::{mem, ops, io};
+use std::path::Path;
 
 /// CRC-32-Castagnoli polynomial in reversed bit order.
 pub const POLYNOMIAL: u32 = 0x82_F6_3B_78;
@@ -144,9 +145,6 @@ fn hw_table(len: usize) -> [[u32; 256]; 4] {
 pub const LONG: usize = 8192;
 pub const SHORT: usize = 256;
 
-use std::io;
-use std::path::Path;
-
 fn write_table(table: &[[u32; 256]], path: &Path) -> io::Result<()> {
     use std::fs;
 
@@ -155,7 +153,7 @@ fn write_table(table: &[[u32; 256]], path: &Path) -> io::Result<()> {
         io::BufWriter::new(file)
     };
 
-    use io::Write;
+    use std::io::Write;
     write!(file, "[")?;
 
     for row in table.iter() {
