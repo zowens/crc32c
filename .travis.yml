@@ -1,7 +1,7 @@
 language: rust
 rust:
   # Test on the minimum supported version
-  - 1.27.0
+  - 1.33.0
   # Test on the other Rust channels
   - stable
   - nightly

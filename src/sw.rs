@@ -1,6 +1,6 @@
 //! Implements crc32c without hardware support.
 
-use util;
+use crate::util;
 
 /// 8-KiB lookup table.
 pub struct CrcTable([[u32; 256]; 8]);
