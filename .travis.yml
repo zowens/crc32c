@@ -1,7 +1,10 @@
 language: rust
+arch:
+  - amd64
+  - arm64
 rust:
   # Test on the minimum supported version
-  - 1.33.0
+  - 1.41.0
   # Test on the other Rust channels
   - stable
   - nightly

@@ -4,14 +4,12 @@ extern crate rand;
 extern crate crc32c;
 
 use criterion::{Criterion, Benchmark, Throughput};
-use rand::{OsRng, Rng};
+use rand::{rngs::OsRng, RngCore};
 use crc32c::crc32c;
 
 fn crc32c_megabyte(c: &mut Criterion) {
     let mut bytes = [0u8; 1_000_000];
-
-    let mut r = OsRng::new().unwrap();
-    r.fill_bytes(&mut bytes);
+    OsRng.fill_bytes(&mut bytes);
 
     c.bench(
         "crc32_update_megabytes",
