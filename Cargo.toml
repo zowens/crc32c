@@ -17,7 +17,7 @@ exclude = [
 build = "build.rs"
 
 [dev-dependencies]
-rand = { version ="0.7", features=["alloc", "getrandom"] }
+rand = { version ="0.8", features=["alloc", "getrandom"] }
 criterion = "0.3"
 
 [[bench]]
