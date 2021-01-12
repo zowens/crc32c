@@ -21,7 +21,7 @@
 //! running CPU's features, and enable the appropiate algorithm.
 
 #[cfg(target_arch = "x86_64")]
-mod hw;
+mod hw_x86_64;
 mod sw;
 mod util;
 
@@ -38,7 +38,7 @@ pub fn crc32c(data: &[u8]) -> u32 {
 #[cfg(target_arch = "x86_64")]
 pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
     if is_x86_feature_detected!("sse4.2") {
-        unsafe { hw::crc32c(crc, data) }
+        unsafe { hw_x86_64::crc32c(crc, data) }
     } else {
         sw::crc32c(crc, data)
     }
