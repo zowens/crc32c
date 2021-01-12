@@ -1,5 +1,9 @@
+extern crate rustc_version;
+
 use std::{mem, ops, io};
 use std::path::Path;
+use rustc_version::{version_meta, Channel};
+
 
 /// CRC-32-Castagnoli polynomial in reversed bit order.
 pub const POLYNOMIAL: u32 = 0x82_F6_3B_78;
@@ -181,4 +185,8 @@ fn write_tables() -> io::Result<()> {
 
 fn main() {
     write_tables().expect("Failed to write CRC tables");
+
+    if let Channel::Nightly = version_meta().unwrap().channel {
+        println!("cargo:rustc-cfg=nightly");
+    }
 }

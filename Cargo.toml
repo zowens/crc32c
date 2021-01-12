@@ -20,10 +20,9 @@ build = "build.rs"
 rand = { version ="0.8", features=["alloc", "getrandom"] }
 criterion = "0.3"
 
+[build-dependencies]
+rustc_version = "0.2"
+
 [[bench]]
 name = "rand"
 harness = false
-
-[features]
-default = []
-nightly = []
