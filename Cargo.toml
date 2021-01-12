@@ -23,3 +23,7 @@ criterion = "0.3"
 [[bench]]
 name = "rand"
 harness = false
+
+[features]
+default = []
+nightly = []

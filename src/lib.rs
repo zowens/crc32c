@@ -19,11 +19,12 @@
 //!
 //! Otherwise, the crate will use `cpuid` at runtime to detect the
 //! running CPU's features, and enable the appropiate algorithm.
- #![feature(stdsimd)]
+
+#![cfg_attr(feature = "nightly", feature(stdsimd))]
 
 #[cfg(target_arch = "x86_64")]
 mod hw_x86_64;
-#[cfg(target_arch = "aarch64")]
+#[cfg(all(target_arch = "aarch64", feature = "nightly"))]
 mod hw_aarch64;
 mod sw;
 mod util;
@@ -47,7 +48,7 @@ pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
         }
     }
 
-    #[cfg(target_arch = "aarch64")]
+    #[cfg(all(target_arch = "aarch64", feature = "nightly"))]
     {
         if is_aarch64_feature_detected!("crc") {
             return unsafe { hw_aarch64::crc32c(crc, data) };
