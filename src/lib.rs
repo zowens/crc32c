@@ -22,10 +22,12 @@
 
 #![cfg_attr(nightly, feature(stdsimd))]
 
-#[cfg(target_arch = "x86_64")]
-mod hw_x86_64;
 #[cfg(all(target_arch = "aarch64", nightly))]
 mod hw_aarch64;
+#[cfg(any(target_arch = "x86_64", all(target_arch = "aarch64", nightly)))]
+mod hw_tables;
+#[cfg(target_arch = "x86_64")]
+mod hw_x86_64;
 mod sw;
 mod util;
 
@@ -40,7 +42,6 @@ pub fn crc32c(data: &[u8]) -> u32 {
 /// Computes the CRC for the data payload, starting with a previous CRC value.
 #[inline]
 pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
-
     #[cfg(target_arch = "x86_64")]
     {
         if is_x86_feature_detected!("sse4.2") {

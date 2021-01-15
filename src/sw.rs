@@ -47,9 +47,13 @@ fn crc_u64(crci: u64, buffer: &[u64]) -> u64 {
 
         // Note: I've tried refactoring this to a for-loop,
         // but then it gets worse performance.
-        CRC_TABLE.at(7, crc as u8) ^ CRC_TABLE.at(6, (crc >> 8) as u8)
-            ^ CRC_TABLE.at(5, (crc >> 16) as u8) ^ CRC_TABLE.at(4, (crc >> 24) as u8)
-            ^ CRC_TABLE.at(3, (crc >> 32) as u8) ^ CRC_TABLE.at(2, (crc >> 40) as u8)
-            ^ CRC_TABLE.at(1, (crc >> 48) as u8) ^ CRC_TABLE.at(0, (crc >> 56) as u8)
+        CRC_TABLE.at(7, crc as u8)
+            ^ CRC_TABLE.at(6, (crc >> 8) as u8)
+            ^ CRC_TABLE.at(5, (crc >> 16) as u8)
+            ^ CRC_TABLE.at(4, (crc >> 24) as u8)
+            ^ CRC_TABLE.at(3, (crc >> 32) as u8)
+            ^ CRC_TABLE.at(2, (crc >> 40) as u8)
+            ^ CRC_TABLE.at(1, (crc >> 48) as u8)
+            ^ CRC_TABLE.at(0, (crc >> 56) as u8)
     })
 }
