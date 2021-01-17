@@ -1,11 +1,10 @@
 use crate::hw_tables;
-use crate::sw;
 use crate::util;
 
 use std::arch::aarch64 as simd;
 
 pub unsafe fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
-    let mut crc0 = crci;
+    let mut crc0 = !crci;
     let (begin, middle, end) = util::split(buffer);
 
     // We're effectively cheating by using the software implementation
@@ -14,7 +13,7 @@ pub unsafe fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
     //
     // This needs a little more optimization, and to use the typical
     // crc32cb instruction rather than using the software implementation.
-    crc0 = !sw::crc32c(crc0, begin);
+    crc0 = crc_u8(crc0, begin);
 
     // Most CPUs have a latency of 3 on these instructions,
     // meaning we must use 3 of them at a time, to leverage
@@ -41,8 +40,27 @@ pub unsafe fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
     // Now the last part, less than SHORT * 3 but still a multiple of 8-bytes.
     crc0 = crc_u64(crc0, middle_last_last);
 
-    sw::crc32c(!crc0, end)
+    !crc_u8(crc0, end)
 }
+
+#[inline]
+#[target_feature(enable = "crc")]
+pub unsafe fn __crc32b(mut crc: u32, data: u8) -> u32 {
+    asm!(
+        "crc32cb {0:w}, {0:w}, {1:w}",
+        inout(reg) crc,
+        in(reg) data,
+    );
+    crc
+}
+
+#[inline]
+unsafe fn crc_u8(crc: u32, buffer: &[u8]) -> u32 {
+    buffer
+        .iter()
+        .fold(crc, |crc, &next| __crc32b(crc, next))
+}
+
 
 #[inline(always)]
 unsafe fn crc_u64(crc: u32, words: &[u64]) -> u32 {
