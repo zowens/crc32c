@@ -4,16 +4,16 @@
 [![Docs.rs](https://docs.rs/crc32c/badge.svg)](https://docs.rs/crc32c/)
 [![Travis](https://travis-ci.org/zowens/crc32c.svg?branch=master)](https://travis-ci.org/zowens/crc32c/)
 
-Rust implementation of the CRC-32-Castagnoli algorithm with hardware accelleration where possible.
+Rust implementation of the CRC-32-Castagnoli algorithm with hardware acceleration where possible.
 
 Hardware accelleration on the following architectures:
-1. **x84** with [SSE 4.2](https://software.intel.com/sites/default/files/m/8/b/8/D9156103.pdf)
+1. **x84-64** with [SSE 4.2](https://software.intel.com/sites/default/files/m/8/b/8/D9156103.pdf)
     * All stable versions of Rust
     * If SSE 4.2 is enabled at compile time, it will only build the SSE implementation. Otherwise, the `cpuid` is used to find the best implementation at runtime.
 1. **aarch64** with [crc feature](https://developer.arm.com/documentation/dui0801/g/A32-and-T32-Instructions/CRC32C)
     * Only available on nightly (enabled by default without feature)
 
-All other processors utilize a softeware fallback.
+All other processors utilize a software fallback.
 
 ## Usage
 
