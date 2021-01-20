@@ -21,7 +21,7 @@ First, add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-crc32c = "0.5"
+crc32c = "0.6"
 ```
 
 ```rust
