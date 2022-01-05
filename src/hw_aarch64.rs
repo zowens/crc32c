@@ -1,8 +1,8 @@
 use crate::hw_tables;
 use crate::util;
 
-use std::arch::asm;
 use std::arch::aarch64 as simd;
+use std::arch::asm;
 
 pub unsafe fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
     let mut crc0 = !crci;
@@ -57,11 +57,8 @@ pub unsafe fn __crc32b(mut crc: u32, data: u8) -> u32 {
 
 #[inline]
 unsafe fn crc_u8(crc: u32, buffer: &[u8]) -> u32 {
-    buffer
-        .iter()
-        .fold(crc, |crc, &next| __crc32b(crc, next))
+    buffer.iter().fold(crc, |crc, &next| __crc32b(crc, next))
 }
-
 
 #[inline(always)]
 unsafe fn crc_u64(crc: u32, words: &[u64]) -> u32 {
