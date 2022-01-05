@@ -1,6 +1,7 @@
 use crate::hw_tables;
 use crate::util;
 
+use std::arch::asm;
 use std::arch::aarch64 as simd;
 
 pub unsafe fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
