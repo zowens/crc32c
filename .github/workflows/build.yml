@@ -58,6 +58,6 @@ jobs:
         rustup target add ${{ matrix.target }}
         rustup show
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --verbose --target ${{ matrix.target }}
     - name: Run tests
       run: cargo test --verbose
