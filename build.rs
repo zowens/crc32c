@@ -1,3 +1,4 @@
+#![allow(clippy::uninit_assumed_init)]
 extern crate rustc_version;
 
 use rustc_version::{version_meta, Channel};
@@ -9,8 +10,7 @@ pub const POLYNOMIAL: u32 = 0x82_F6_3B_78;
 
 /// Table for a quadword-at-a-time software CRC.
 fn sw_table() -> [[u32; 256]; 8] {
-    let mut table: [[u32; 256]; 8] = unsafe { mem::uninitialized() };
-
+    let mut table: [[u32; 256]; 8] = unsafe { mem::MaybeUninit::uninit().assume_init() };
     for n in 0..256 {
         let mut crc = n;
 
@@ -45,7 +45,7 @@ pub struct Matrix([u32; 32]);
 impl Matrix {
     /// Allocates space for a new matrix.
     fn new() -> Self {
-        unsafe { mem::uninitialized() }
+        unsafe { mem::MaybeUninit::uninit().assume_init() }
     }
 
     /// Multiplies a matrix by itself.
@@ -132,7 +132,7 @@ fn create_zero_operator(mut len: usize) -> Matrix {
 }
 
 fn hw_table(len: usize) -> [[u32; 256]; 4] {
-    let mut zeroes: [[u32; 256]; 4] = unsafe { mem::uninitialized() };
+    let mut zeroes: [[u32; 256]; 4] = unsafe { mem::MaybeUninit::uninit().assume_init() };
     let op = create_zero_operator(len);
 
     for n in 0..256 {
