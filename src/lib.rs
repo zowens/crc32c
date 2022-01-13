@@ -22,6 +22,7 @@
 
 #![cfg_attr(nightly, feature(stdsimd, aarch64_target_feature))]
 
+mod combine;
 #[cfg(all(target_arch = "aarch64", nightly))]
 mod hw_aarch64;
 #[cfg(any(target_arch = "x86_64", all(target_arch = "aarch64", nightly)))]
@@ -57,4 +58,12 @@ pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
     }
 
     sw::crc32c(crc, data)
+}
+
+/// Computes the "combined" value of two CRC32c values. Specifically, given two byte streams A and
+/// B and their CRC32c check values crc32c(A) and crc32c(B), this function calculates crc32c(AB)
+/// using only crc32c(A), crc32c(B), and the length of B.
+#[inline]
+pub fn crc32c_combine(crc1: u32, crc2: u32, len2: usize) -> u32 {
+    combine::crc32c_combine(crc1, crc2, len2)
 }

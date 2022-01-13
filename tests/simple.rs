@@ -1,5 +1,32 @@
 extern crate crc32c;
-use crc32c::{crc32c, crc32c_append};
+extern crate rand;
+
+use crc32c::{crc32c, crc32c_append, crc32c_combine};
+use rand::{rngs::OsRng, RngCore};
+
+#[test]
+fn crc_combine() {
+    for a_length in 0..12 {
+        for b_length in 0..12 {
+            let mut a_buf = vec![0u8; a_length];
+            let mut b_buf = vec![0u8; b_length];
+            OsRng.fill_bytes(&mut a_buf);
+            OsRng.fill_bytes(&mut b_buf);
+
+            let a = crc32c(&a_buf);
+            let b = crc32c(&b_buf);
+            let appended = crc32c_append(a, &b_buf);
+
+            let _ = &a_buf.append(&mut b_buf);
+
+            let ab = crc32c(&a_buf);
+            let combined = crc32c_combine(a, b, b_length);
+
+            assert_eq!(ab, appended);
+            assert_eq!(ab, combined);
+        }
+    }
+}
 
 #[test]
 fn crc() {
