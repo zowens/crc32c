@@ -33,7 +33,7 @@ fn gf2_matrix_times(mat: &[u32; GF2_DIM], mut vec: u32) -> u32 {
         vec >>= 1;
         idx += 1;
     }
-    return sum;
+    sum
 }
 
 fn gf2_matrix_square(square: &mut [u32; GF2_DIM], mat: &[u32; GF2_DIM]) {
@@ -43,18 +43,18 @@ fn gf2_matrix_square(square: &mut [u32; GF2_DIM], mat: &[u32; GF2_DIM]) {
 }
 
 pub(crate) fn crc32c_combine(mut crc1: u32, crc2: u32, mut len2: usize) -> u32 {
-    let mut row: u32;
+    let mut row: u32 = 1;
     let mut even = [0u32; GF2_DIM]; /* even-power-of-two zeros operator */
     let mut odd = [0u32; GF2_DIM]; /* odd-power-of-two zeros operator */
 
     /* degenerate case (also disallow negative lengths) */
-    if len2 <= 0 {
+    if len2 == 0 {
         return crc1;
     }
 
     /* put operator for one zero bit in odd */
     odd[0] = 0x82F63B78; /* CRC-32c polynomial */
-    row = 1;
+    #[allow(clippy::needless_range_loop)]
     for n in 1..GF2_DIM {
         odd[n] = row;
         row <<= 1;
@@ -67,7 +67,7 @@ pub(crate) fn crc32c_combine(mut crc1: u32, crc2: u32, mut len2: usize) -> u32 {
     gf2_matrix_square(&mut odd, &even);
 
     /* degenerate case (also disallow negative lengths) */
-    if len2 <= 0 {
+    if len2 == 0 {
         return crc1;
     }
 
@@ -101,5 +101,5 @@ pub(crate) fn crc32c_combine(mut crc1: u32, crc2: u32, mut len2: usize) -> u32 {
 
     /* return combined crc */
     crc1 ^= crc2;
-    return crc1;
+    crc1
 }
