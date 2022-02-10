@@ -52,7 +52,7 @@ pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
 
     #[cfg(all(target_arch = "aarch64", nightly))]
     {
-        if is_aarch64_feature_detected!("crc") {
+        if std::arch::is_aarch64_feature_detected!("crc") {
             return unsafe { hw_aarch64::crc32c(crc, data) };
         }
     }
