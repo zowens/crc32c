@@ -18,7 +18,7 @@ build = "build.rs"
 
 [dev-dependencies]
 rand = { version ="0.8", features=["alloc", "getrandom"] }
-criterion = "0.3"
+criterion = "0.4"
 
 [build-dependencies]
 rustc_version = "0.4"
