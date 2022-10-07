@@ -1,4 +1,3 @@
-#![allow(clippy::uninit_assumed_init)]
 extern crate rustc_version;
 
 use rustc_version::{version_meta, Channel};
