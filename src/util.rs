@@ -5,7 +5,7 @@ use std::{cmp, mem, slice};
 pub(crate) struct U64Le(u64);
 
 impl U64Le {
-    #[inline]
+    #[inline(always)]
     pub const fn get(self) -> u64 {
         u64::from_le(self.0)
     }
