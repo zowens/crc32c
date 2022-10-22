@@ -1,10 +1,21 @@
 use std::{cmp, mem, slice};
 
+#[repr(transparent)]
+#[derive(Clone, Copy)]
+pub(crate) struct U64Le(u64);
+
+impl U64Le {
+    #[inline]
+    pub const fn get(self) -> u64 {
+        u64::from_le(self.0)
+    }
+}
+
 /// Splits a buffer into three subslices:
 /// - the first one is up to the first 8-byte aligned address.
 /// - the second one is 8-byte aligned and its length is a multiple of 8.
 /// - the third one is 8-byte aligned but its length is less than 8.
-pub fn split(buffer: &[u8]) -> (&[u8], &[u64], &[u8]) {
+pub(crate) fn split(buffer: &[u8]) -> (&[u8], &[U64Le], &[u8]) {
     let (start, mid) = {
         let split_index = {
             let addr = buffer.as_ptr() as usize;
