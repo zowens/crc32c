@@ -1,6 +1,8 @@
 use std::{cmp, slice};
 
 /// A newtype wrapper for a little endian `u64`.
+///
+/// It is safe to transmute between a `u64` and `U64Le`.
 #[repr(transparent)]
 #[derive(Clone, Copy)]
 pub(crate) struct U64Le(u64);
