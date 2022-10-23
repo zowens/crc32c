@@ -1,10 +1,11 @@
-use std::{cmp, mem, slice};
+use std::{cmp, slice};
 
 #[repr(transparent)]
 #[derive(Clone, Copy)]
 pub(crate) struct U64Le(u64);
 
 impl U64Le {
+    #[allow(clippy::inline_always)]
     #[inline(always)]
     pub const fn get(self) -> u64 {
         u64::from_le(self.0)
@@ -41,7 +42,8 @@ pub(crate) fn split(buffer: &[u8]) -> (&[u8], &[U64Le], &[u8]) {
     };
 
     let mid = unsafe {
-        let ptr = mem::transmute(mid.as_ptr());
+        #[allow(clippy::cast_ptr_alignment)]
+        let ptr = mid.as_ptr().cast::<U64Le>();
         let length = mid.len() / 8;
 
         slice::from_raw_parts(ptr, length)
