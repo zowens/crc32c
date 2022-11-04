@@ -1,3 +1,4 @@
+use std::ptr::NonNull;
 use std::{cmp, mem, slice};
 
 /// Splits a buffer into three subslices:
@@ -30,8 +31,14 @@ pub fn split(buffer: &[u8]) -> (&[u8], &[u64], &[u8]) {
     };
 
     let mid = unsafe {
-        let ptr = mem::transmute(mid.as_ptr());
         let length = mid.len() / 8;
+        let ptr = if length == 0 {
+            // `slice::from_raw_parts` requires that pointers be nonnull and
+            // aligned even for zero-length slices.
+            NonNull::<u64>::dangling().as_ptr()
+        } else {
+            mem::transmute(mid.as_ptr())
+        };
 
         slice::from_raw_parts(ptr, length)
     };
