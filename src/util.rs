@@ -1,3 +1,4 @@
+use std::ptr::NonNull;
 use std::{cmp, slice};
 
 /// A newtype wrapper for a little endian `u64`.
@@ -48,9 +49,15 @@ pub(crate) fn split(buffer: &[u8]) -> (&[u8], &[U64Le], &[u8]) {
     };
 
     let mid = unsafe {
-        #[allow(clippy::cast_ptr_alignment)]
-        let ptr = mid.as_ptr().cast::<U64Le>();
         let length = mid.len() / 8;
+        let ptr = if length == 0 {
+            // `slice::from_raw_parts` requires that pointers be nonnull and
+            // aligned even for zero-length slices.
+            NonNull::<U64Le>::dangling().as_ptr()
+        } else {
+            #[allow(clippy::cast_ptr_alignment)]
+            mid.as_ptr().cast::<U64Le>()
+        };
 
         slice::from_raw_parts(ptr, length)
     };
