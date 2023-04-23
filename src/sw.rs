@@ -1,6 +1,6 @@
 //! Implements crc32c without hardware support.
 
-use crate::util;
+use crate::util::{self, U64Le};
 
 /// 8-KiB lookup table.
 pub struct CrcTable([[u32; 256]; 8]);
@@ -41,9 +41,9 @@ fn crc_u8(crc: u64, buffer: &[u8]) -> u64 {
 }
 
 #[inline]
-fn crc_u64(crci: u64, buffer: &[u64]) -> u64 {
+fn crc_u64(crci: u64, buffer: &[U64Le]) -> u64 {
     buffer.iter().fold(crci, |crc, &next| {
-        let crc = crc ^ next;
+        let crc = crc ^ next.get();
 
         // Note: I've tried refactoring this to a for-loop,
         // but then it gets worse performance.

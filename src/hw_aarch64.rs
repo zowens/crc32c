@@ -1,5 +1,5 @@
 use crate::hw_tables;
-use crate::util;
+use crate::util::{self, U64Le};
 
 use std::arch::aarch64 as simd;
 use std::arch::asm;
@@ -61,10 +61,10 @@ unsafe fn crc_u8(crc: u32, buffer: &[u8]) -> u32 {
 }
 
 #[inline(always)]
-unsafe fn crc_u64(crc: u32, words: &[u64]) -> u32 {
+unsafe fn crc_u64(crc: u32, words: &[U64Le]) -> u32 {
     words
         .iter()
-        .fold(crc, |crc, &next| crc_u64_append(crc, next))
+        .fold(crc, |crc, &next| crc_u64_append(crc, next.get()))
 }
 
 #[inline(always)]
@@ -77,7 +77,7 @@ unsafe fn crc_u64_parallel3(
     crc: u32,
     chunk_size: usize,
     table: &hw_tables::CrcTable,
-    buffer: &[u64],
+    buffer: &[U64Le],
 ) -> u32 {
     buffer.chunks(chunk_size).fold(crc, |mut crc0, chunk| {
         let mut crc1 = 0;
@@ -92,9 +92,9 @@ unsafe fn crc_u64_parallel3(
         let c = blocks.next().unwrap();
 
         for i in 0..block_size {
-            crc0 = crc_u64_append(crc0, a[i]);
-            crc1 = crc_u64_append(crc1, b[i]);
-            crc2 = crc_u64_append(crc2, c[i]);
+            crc0 = crc_u64_append(crc0, a[i].get());
+            crc1 = crc_u64_append(crc1, b[i].get());
+            crc2 = crc_u64_append(crc2, c[i].get());
         }
 
         crc0 = table.shift_u32(crc0) ^ crc1;

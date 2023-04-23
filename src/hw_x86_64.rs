@@ -1,7 +1,7 @@
 //! Implements crc32c with SSE 4.2 support.
 
 use crate::hw_tables;
-use crate::util;
+use crate::util::{self, U64Le};
 use std::arch::x86_64 as simd;
 
 /// Computes CRC-32C using the SSE 4.2 hardware instruction.
@@ -62,10 +62,10 @@ unsafe fn crc_u8(crc: u64, buffer: &[u8]) -> u64 {
 }
 
 #[inline]
-unsafe fn crc_u64(crc: u64, buffer: &[u64]) -> u64 {
+unsafe fn crc_u64(crc: u64, buffer: &[U64Le]) -> u64 {
     buffer
         .iter()
-        .fold(crc, |crc, &next| crc_u64_append(crc, next))
+        .fold(crc, |crc, &next| crc_u64_append(crc, next.get()))
 }
 
 /// Hardware-parallel version of the algorithm.
@@ -79,7 +79,7 @@ unsafe fn crc_u64_parallel3(
     crc: u64,
     chunk_size: usize,
     table: &hw_tables::CrcTable,
-    buffer: &[u64],
+    buffer: &[U64Le],
 ) -> u64 {
     buffer.chunks(chunk_size).fold(crc, |mut crc0, chunk| {
         let mut crc1 = 0;
@@ -94,9 +94,9 @@ unsafe fn crc_u64_parallel3(
         let c = blocks.next().unwrap();
 
         for i in 0..block_size {
-            crc0 = crc_u64_append(crc0, a[i]);
-            crc1 = crc_u64_append(crc1, b[i]);
-            crc2 = crc_u64_append(crc2, c[i]);
+            crc0 = crc_u64_append(crc0, a[i].get());
+            crc1 = crc_u64_append(crc1, b[i].get());
+            crc2 = crc_u64_append(crc2, c[i].get());
         }
 
         crc0 = table.shift_u64(crc0) ^ crc1;
