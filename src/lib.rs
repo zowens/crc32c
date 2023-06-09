@@ -23,14 +23,20 @@
 #![cfg_attr(nightly, feature(stdsimd))]
 
 mod combine;
+mod hasher;
 #[cfg(all(target_arch = "aarch64", nightly))]
 mod hw_aarch64;
 #[cfg(any(target_arch = "x86_64", all(target_arch = "aarch64", nightly)))]
 mod hw_tables;
 #[cfg(target_arch = "x86_64")]
 mod hw_x86_64;
+mod io;
 mod sw;
 mod util;
+
+pub use hasher::Crc32cHasher;
+
+pub use io::{Crc32Writer, Crc32cReader};
 
 /// Computes the CRC for the data payload.
 ///
