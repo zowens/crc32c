@@ -36,7 +36,7 @@ mod util;
 
 pub use hasher::Crc32cHasher;
 
-pub use io::{Crc32cWriter, Crc32cReader};
+pub use io::{Crc32cReader, Crc32cWriter};
 
 /// Computes the CRC for the data payload.
 ///
