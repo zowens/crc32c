@@ -17,8 +17,9 @@ exclude = [
 build = "build.rs"
 
 [dev-dependencies]
-rand = { version ="0.8", features=["alloc", "getrandom"] }
-criterion = "0.4"
+rand = { version = "0.8", features = ["alloc", "getrandom"] }
+criterion = "0.5"
+crc = "3.0.1"
 
 [build-dependencies]
 rustc_version = "0.4"
@@ -27,6 +28,3 @@ rustc_version = "0.4"
 name = "rand"
 path = "benches/rand.rs"
 harness = false
-
-[target.aarch64-unknown-linux-gnu]
-linker = "aarch64-linux-gnu-gcc"
