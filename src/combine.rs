@@ -66,11 +66,6 @@ pub(crate) fn crc32c_combine(mut crc1: u32, crc2: u32, mut len2: usize) -> u32 {
     /* put operator for four zero bits in odd */
     gf2_matrix_square(&mut odd, &even);
 
-    /* degenerate case (also disallow negative lengths) */
-    if len2 == 0 {
-        return crc1;
-    }
-
     /* apply len2 zeros to crc1 (first square will put the operator for one
     zero byte, eight zero bits, in even) */
     loop {
