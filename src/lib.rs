@@ -24,11 +24,11 @@
 
 mod combine;
 mod hasher;
-#[cfg(all(target_arch = "aarch64", nightly))]
+#[cfg(all(target_arch = "aarch64", nightly, feature = "aarch64"))]
 mod hw_aarch64;
-#[cfg(any(target_arch = "x86_64", all(target_arch = "aarch64", nightly)))]
+#[cfg(any(all(target_arch = "x86_64", feature = "x86_64"), all(target_arch = "aarch64", nightly, feature = "aarch64")))]
 mod hw_tables;
-#[cfg(target_arch = "x86_64")]
+#[cfg(all(target_arch = "x86_64", feature = "x86_64"))]
 mod hw_x86_64;
 mod io;
 mod sw;
@@ -49,14 +49,14 @@ pub fn crc32c(data: &[u8]) -> u32 {
 /// Computes the CRC for the data payload, starting with a previous CRC value.
 #[inline]
 pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(target_arch = "x86_64", feature = "x86_64"))]
     {
         if is_x86_feature_detected!("sse4.2") {
             return unsafe { hw_x86_64::crc32c(crc, data) };
         }
     }
 
-    #[cfg(all(target_arch = "aarch64", nightly))]
+    #[cfg(all(target_arch = "aarch64", nightly, feature = "aarch64"))]
     {
         if std::arch::is_aarch64_feature_detected!("crc") {
             return unsafe { hw_aarch64::crc32c(crc, data) };
