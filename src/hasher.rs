@@ -13,11 +13,13 @@ pub struct Crc32cHasher {
 }
 
 impl Crc32cHasher {
-    /// Create the [Hasher] pre-loaded with a particular checksum.
+    /// Create the [Hasher] pre-loaded with an arbitrary seed value.
     ///
     /// Use the [Default::default()] constructor for a clean start.
     pub fn new(initial: u32) -> Self {
-        Self { checksum: initial }
+        Self {
+            checksum: !initial.reverse_bits(),
+        }
     }
 }
 
@@ -44,5 +46,21 @@ mod tests {
         let mut hasher = Crc32cHasher::default();
         hasher.write(TEST_STRING);
         assert_eq!(hasher.finish(), CHECKSUM as u64);
+    }
+
+    #[test]
+    fn test_with_initial_value() {
+        let seed = 123u32;
+        let buffer = b"123456789";
+        let mut hasher = Crc32cHasher::new(seed);
+        hasher.write(buffer);
+        let crc1 = hasher.finish() as u32;
+
+        let castagnoli = crc::Crc::<u32>::new(&crc::CRC_32_ISCSI);
+        let mut digest = castagnoli.digest_with_initial(seed);
+        digest.update(buffer);
+        let crc2 = digest.finalize();
+
+        assert_eq!(crc1, crc2);
     }
 }
