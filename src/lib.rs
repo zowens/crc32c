@@ -18,7 +18,7 @@
 //! then the hardware-optimized version will be compiled into the code.
 //!
 //! Otherwise, the crate will use `cpuid` at runtime to detect the
-//! running CPU's features, and enable the appropiate algorithm.
+//! running CPU's features, and enable the appropriate algorithm.
 
 #![cfg_attr(all(target_arch = "aarch64", nightly), feature(stdarch_arm_crc32))]
 
