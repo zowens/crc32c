@@ -20,6 +20,8 @@
 //! Otherwise, the crate will use `cpuid` at runtime to detect the
 //! running CPU's features, and enable the appropiate algorithm.
 
+#![cfg_attr(all(target_arch = "aarch64", nightly), feature(stdarch_arm_crc32))]
+
 mod combine;
 mod hasher;
 #[cfg(all(target_arch = "aarch64", nightly))]
