@@ -97,7 +97,7 @@ mod tests {
 
     #[test]
     fn can_read() {
-        let mut reader = Crc32cReader::new(&TEST_STRING[..]);
+        let mut reader = Crc32cReader::new(TEST_STRING);
         let mut buf = Vec::default();
         let n_read = reader.read_to_end(&mut buf).unwrap();
         assert_eq!(n_read, TEST_STRING.len());
