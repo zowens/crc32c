@@ -45,7 +45,9 @@ pub unsafe fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
 #[inline]
 #[target_feature(enable = "crc")]
 unsafe fn crc_u8(crc: u32, buffer: &[u8]) -> u32 {
-    buffer.iter().fold(crc, |crc, &next| simd::__crc32cb(crc, next))
+    buffer
+        .iter()
+        .fold(crc, |crc, &next| simd::__crc32cb(crc, next))
 }
 
 #[inline(always)]
