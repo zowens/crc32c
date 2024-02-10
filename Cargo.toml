@@ -30,3 +30,8 @@ harness = false
 
 [target.aarch64-unknown-linux-gnu]
 linker = "aarch64-linux-gnu-gcc"
+
+[features]
+default = ["x86_64"]
+x86_64=[]
+aarch64 = []
