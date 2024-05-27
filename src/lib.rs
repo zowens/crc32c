@@ -22,9 +22,9 @@
 
 mod combine;
 mod hasher;
-#[cfg(all(target_arch = "aarch64", nightly))]
+#[cfg(all(target_arch = "aarch64", armsimd))]
 mod hw_aarch64;
-#[cfg(any(target_arch = "x86_64", all(target_arch = "aarch64", nightly)))]
+#[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
 mod hw_tables;
 #[cfg(target_arch = "x86_64")]
 mod hw_x86_64;
@@ -54,7 +54,7 @@ pub fn crc32c_append(crc: u32, data: &[u8]) -> u32 {
         }
     }
 
-    #[cfg(all(target_arch = "aarch64", nightly))]
+    #[cfg(all(target_arch = "aarch64", armsimd))]
     {
         if std::arch::is_aarch64_feature_detected!("crc") {
             return unsafe { hw_aarch64::crc32c(crc, data) };
