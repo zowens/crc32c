@@ -1,7 +1,7 @@
 #![allow(clippy::uninit_assumed_init)]
 extern crate rustc_version;
 
-use rustc_version::{Version, version};
+use rustc_version::{version, Version};
 use std::io::Write;
 use std::path::Path;
 use std::{io, ops};
