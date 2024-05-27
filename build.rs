@@ -183,7 +183,6 @@ fn write_tables() -> io::Result<()> {
 }
 
 fn main() {
-    println!("cargo::rerun-if-changed=build.rs");
     write_tables().expect("Failed to write CRC tables");
     let min_version = Version::new(1, 80, 0);
 
