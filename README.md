@@ -11,7 +11,7 @@ Hardware acceleration on the following architectures:
     * All stable versions of Rust
     * If SSE 4.2 is enabled at compile time, it will only build the SSE implementation. Otherwise, the `cpuid` is used to find the best implementation at runtime.
 1. **aarch64** with [crc feature](https://developer.arm.com/documentation/dui0801/g/A32-and-T32-Instructions/CRC32C)
-    * Only available on nightly (enabled by default without feature)
+    * Only available on rust version >= 1.80.0 or nightly
 
 All other processors utilize a software fallback.
 

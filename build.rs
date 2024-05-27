@@ -1,7 +1,7 @@
 #![allow(clippy::uninit_assumed_init)]
 extern crate rustc_version;
 
-use rustc_version::{version_meta, Channel};
+use rustc_version::{Version, version};
 use std::io::Write;
 use std::path::Path;
 use std::{io, ops};
@@ -183,9 +183,19 @@ fn write_tables() -> io::Result<()> {
 }
 
 fn main() {
+    println!("cargo::rerun-if-changed=build.rs");
     write_tables().expect("Failed to write CRC tables");
+    let min_version = Version::new(1, 80, 0);
 
-    if version_meta().unwrap().channel == Channel::Nightly {
-        println!("cargo:rustc-cfg=nightly");
+    let current_version = {
+        // rmeove prerelease tag for now, if it exists
+        let vers = version().unwrap();
+        Version::new(vers.major, vers.minor, vers.patch)
+    };
+
+    // only stable in nightly versions for 1.80 and above
+    println!("cargo::rustc-check-cfg=cfg(armsimd)");
+    if current_version >= min_version {
+        println!("cargo::rustc-cfg=armsimd");
     }
 }
