@@ -1,6 +1,6 @@
 [package]
 name = "crc32c"
-version = "0.6.5"
+version = "0.6.6"
 authors = ["Zack Owens"]
 license = "Apache-2.0/MIT"
 keywords = ["crc", "simd"]
@@ -10,14 +10,11 @@ homepage = "https://github.com/zowens/crc32c"
 documentation = "http://docs.rs/crc32c"
 edition = "2018"
 description = "Safe implementation for hardware accelerated CRC32C instructions with software fallback"
-exclude = [
-    "benches/*",
-    "tests/*",
-]
+exclude = ["benches/*", "tests/*"]
 build = "build.rs"
 
 [dev-dependencies]
-rand = { version ="0.8", features=["alloc", "getrandom"] }
+rand = { version = "0.8", features = ["alloc", "getrandom"] }
 criterion = "0.5"
 
 [build-dependencies]
