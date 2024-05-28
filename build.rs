@@ -187,13 +187,11 @@ fn main() {
     let min_version = Version::new(1, 80, 0);
 
     let current_version = {
-        // rmeove prerelease tag for now, if it exists
+        // remove prerelease tag for now, if it exists.
         let vers = version().unwrap();
         Version::new(vers.major, vers.minor, vers.patch)
     };
 
-    // only stable in nightly versions for 1.80 and above
-    println!("cargo::rustc-check-cfg=cfg(armsimd)");
     if current_version >= min_version {
         println!("cargo::rustc-cfg=armsimd");
     }
