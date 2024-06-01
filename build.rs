@@ -193,6 +193,7 @@ fn main() {
     };
 
     if current_version >= min_version {
+        println!("cargo::rustc-check-cfg=cfg(armsimd)");
         println!("cargo::rustc-cfg=armsimd");
     }
 }
