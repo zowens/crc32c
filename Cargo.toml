@@ -2,7 +2,7 @@
 name = "crc32c"
 version = "0.6.8"
 authors = ["Zack Owens"]
-license = "Apache-2.0/MIT"
+license = "MIT OR Apache-2.0"
 keywords = ["crc", "simd"]
 categories = ["algorithms"]
 repository = "https://github.com/zowens/crc32c"
