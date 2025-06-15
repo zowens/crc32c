@@ -5,11 +5,11 @@ extern crate rand;
 
 use crc32c::{crc32c, crc32c_append, crc32c_combine};
 use criterion::{Criterion, Throughput};
-use rand::{rngs::OsRng, RngCore};
+use rand::{rngs::OsRng, TryRngCore};
 
 fn crc32c_megabyte(c: &mut Criterion) {
     let mut bytes = [0u8; 1_000_000];
-    OsRng.fill_bytes(&mut bytes);
+    OsRng.try_fill_bytes(&mut bytes).unwrap();
 
     let mut group = c.benchmark_group("crc32_update_megabytes");
     group.throughput(Throughput::Bytes(1_000_000));
@@ -19,7 +19,7 @@ fn crc32c_megabyte(c: &mut Criterion) {
 
 fn crc32c_8kb(c: &mut Criterion) {
     let mut buffer = [0u8; 8192];
-    OsRng.fill_bytes(&mut buffer);
+    OsRng.try_fill_bytes(&mut buffer).unwrap();
 
     let mut group = c.benchmark_group("crc32c_8kb");
     group.throughput(Throughput::Bytes(8192));
@@ -30,7 +30,7 @@ fn crc32c_8kb(c: &mut Criterion) {
 /// benchmark combining 4KB blocks into existing check values.
 fn crc32c_combine_4kb(c: &mut Criterion) {
     let mut buffer = [0u8; 4096];
-    OsRng.fill_bytes(&mut buffer);
+    OsRng.try_fill_bytes(&mut buffer).unwrap();
 
     let crc_a = crc32c(b"abcd");
     let crc_b = crc32c(&buffer);
@@ -45,7 +45,7 @@ fn crc32c_combine_4kb(c: &mut Criterion) {
 /// benchmark appending 4KB blocks to existing check values
 fn crc32c_append_4kb(c: &mut Criterion) {
     let mut buffer = [0u8; 4096];
-    OsRng.fill_bytes(&mut buffer);
+    OsRng.try_fill_bytes(&mut buffer).unwrap();
 
     let crc_a = crc32c(b"abcd");
 
@@ -59,7 +59,7 @@ fn crc32c_append_4kb(c: &mut Criterion) {
 /// benchmark combining 1MB blocks into existing check values.
 fn crc32c_combine_megabyte(c: &mut Criterion) {
     let mut buffer = [0u8; 1_000_000];
-    OsRng.fill_bytes(&mut buffer);
+    OsRng.try_fill_bytes(&mut buffer).unwrap();
 
     let crc_a = crc32c(b"abcd");
     let crc_b = crc32c(&buffer);
@@ -73,7 +73,7 @@ fn crc32c_combine_megabyte(c: &mut Criterion) {
 
 fn crc32c_append_megabyte(c: &mut Criterion) {
     let mut buffer = [0u8; 1_000_000];
-    OsRng.fill_bytes(&mut buffer);
+    OsRng.try_fill_bytes(&mut buffer).unwrap();
 
     let crc_a = crc32c(b"abcd");
 
