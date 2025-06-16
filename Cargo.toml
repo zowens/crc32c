@@ -17,8 +17,8 @@ exclude = [
 build = "build.rs"
 
 [dev-dependencies]
-rand = { version ="0.8", features=["alloc", "getrandom"] }
-criterion = "0.5"
+rand = { version ="0.9", features=["alloc"] }
+criterion = "0.6"
 
 [build-dependencies]
 rustc_version = "0.4"
