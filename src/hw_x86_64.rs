@@ -5,6 +5,7 @@ use crate::util::{self, U64Le};
 use std::arch::x86_64 as simd;
 
 /// Computes CRC-32C using the SSE 4.2 hardware instruction.
+#[target_feature(enable = "sse4.2")]
 pub unsafe fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
     let mut crc0 = u64::from(!crci);
 
@@ -55,17 +56,21 @@ unsafe fn crc_u64_append(crc: u64, next: u64) -> u64 {
 }
 
 #[inline]
-unsafe fn crc_u8(crc: u64, buffer: &[u8]) -> u64 {
-    buffer
-        .iter()
-        .fold(crc, |crc, &next| crc_u8_append(crc, next))
+#[target_feature(enable = "sse4.2")]
+unsafe fn crc_u8(mut crc: u64, buffer: &[u8]) -> u64 {
+    for &next in buffer {
+        crc = crc_u8_append(crc, next);
+    }
+    crc
 }
 
 #[inline]
-unsafe fn crc_u64(crc: u64, buffer: &[U64Le]) -> u64 {
-    buffer
-        .iter()
-        .fold(crc, |crc, &next| crc_u64_append(crc, next.get()))
+#[target_feature(enable = "sse4.2")]
+unsafe fn crc_u64(mut crc: u64, buffer: &[U64Le]) -> u64 {
+    for next in buffer {
+        crc = crc_u64_append(crc, next.get());
+    }
+    crc
 }
 
 /// Hardware-parallel version of the algorithm.
@@ -75,13 +80,15 @@ unsafe fn crc_u64(crc: u64, buffer: &[U64Le]) -> u64 {
 ///
 /// Uses a pre-made CRC table designed for the given chunk size.
 #[inline]
+#[target_feature(enable = "sse4.2")]
 unsafe fn crc_u64_parallel3(
     crc: u64,
     chunk_size: usize,
     table: &hw_tables::CrcTable,
     buffer: &[U64Le],
 ) -> u64 {
-    buffer.chunks(chunk_size).fold(crc, |mut crc0, chunk| {
+    let mut crc0 = crc;
+    for chunk in buffer.chunks(chunk_size) {
         let mut crc1 = 0;
         let mut crc2 = 0;
 
@@ -101,7 +108,6 @@ unsafe fn crc_u64_parallel3(
 
         crc0 = table.shift_u64(crc0) ^ crc1;
         crc0 = table.shift_u64(crc0) ^ crc2;
-
-        crc0
-    })
+    }
+    crc0
 }
