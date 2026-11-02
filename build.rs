@@ -87,7 +87,7 @@ impl ops::Mul<u32> for Matrix {
         let mut i = 0;
 
         while vec != 0 {
-            if vec % 2 != 0 {
+            if !vec.is_multiple_of(2) {
                 sum ^= self[i];
             }
 
