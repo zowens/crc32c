@@ -4,90 +4,39 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+permissions:
+  contents: read
 env:
   CARGO_TERM_COLOR: always
 jobs:
-  build:
-    runs-on: ${{matrix.os}}
+  test:
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        include:
-        - build: linux
-          os: ubuntu-latest
-          rust: stable
-          target: x86_64-unknown-linux-musl
-          cross: false
-        - build: linux
-          os: ubuntu-latest
-          rust: nightly
-          target: x86_64-unknown-linux-musl
-          cross: false
-        - build: aarch64
-          os: ubuntu-latest
-          rust: stable
-          target: aarch64-unknown-linux-gnu
-          linker: gcc-aarch64-linux-gnu
-          cross: true
-        - build: aarch64
-          os: ubuntu-latest
-          rust: nightly
-          target: aarch64-unknown-linux-gnu
-          linker: gcc-aarch64-linux-gnu
-          cross: true
+        os: [ ubuntu-latest, ubuntu-24.04-arm ]
+        rust: [ stable, nightly ]
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
-    - name: Cache
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cargo/registry
-          ~/.cargo/git
-          ~/.rustup
-          target
-        key: ${{ runner.os }}-${{ matrix.rust }}
-    - name: Install Linker
-      if: matrix.cross
-      run: |
-        sudo apt update
-        sudo apt install ${{ matrix.linker }}
-    - name: Install Rust
-      run: |
-        rustup install ${{ matrix.rust }}
-        rustup target add ${{ matrix.target }}
-        rustup show
-    - name: Build
-      run: cargo build --verbose --target ${{ matrix.target }}
-    - name: Run tests
-      run: cargo test --verbose
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --verbose
   fmt:
-    name: Rustfmt
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - run: rustup component add rustfmt
-      - uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+          components: rustfmt
+      - run: cargo fmt --all -- --check
   clippy:
-    name: Clippy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
           components: clippy
-          override: true
-      - uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
-          name: Clippy Output
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --all-targets --all-features -- -D warnings
