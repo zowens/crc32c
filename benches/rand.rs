@@ -4,8 +4,25 @@ extern crate crc32c;
 extern crate rand;
 
 use crc32c::{crc32c, crc32c_append, crc32c_combine};
-use criterion::{Criterion, Throughput};
+use criterion::{BenchmarkId, Criterion, Throughput};
 use rand::RngCore;
+use std::hint::black_box;
+
+fn crc32c_lengths(c: &mut Criterion) {
+    let mut group = c.benchmark_group("crc32c_lengths");
+    for size in [
+        0, 1, 8, 32, 63, 64, 65, 255, 256, 257, 4095, 4096, 4097, 16384, 209715, 524288, 2097152,
+        8388608,
+    ] {
+        let mut bytes = vec![0u8; size];
+        rand::rng().fill_bytes(&mut bytes);
+        group.throughput(Throughput::Bytes(size as u64));
+        group.bench_with_input(BenchmarkId::from_parameter(size), &bytes, |b, bytes| {
+            b.iter(|| crc32c(black_box(bytes)))
+        });
+    }
+    group.finish();
+}
 
 fn crc32c_megabyte(c: &mut Criterion) {
     let mut bytes = [0u8; 1_000_000];
@@ -91,6 +108,7 @@ criterion_group!(
     crc32c_append_4kb,
     crc32c_combine_4kb,
     crc32c_combine_megabyte,
+    crc32c_lengths,
     crc32c_append_megabyte
 );
 criterion_main!(crc);

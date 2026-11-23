@@ -2,7 +2,20 @@ use crate::hw_tables;
 use crate::util::{self, U64Le};
 use std::arch::aarch64 as simd;
 
+#[cfg(all(target_endian = "little", target_feature = "neon"))]
+mod pmull;
+
+#[inline]
 pub unsafe fn crc32c(crci: u32, buffer: &[u8]) -> u32 {
+    #[cfg(all(target_endian = "little", target_feature = "neon"))]
+    if buffer.len() >= 64 && std::arch::is_aarch64_feature_detected!("aes") {
+        return pmull::crc32c(crci, buffer);
+    }
+
+    crc32c_crc(crci, buffer)
+}
+
+unsafe fn crc32c_crc(crci: u32, buffer: &[u8]) -> u32 {
     let mut crc0 = !crci;
     let (begin, middle, end) = util::split(buffer);
 

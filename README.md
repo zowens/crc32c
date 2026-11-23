@@ -12,8 +12,19 @@ Hardware acceleration on the following architectures:
     * If SSE 4.2 is enabled at compile time, it will only build the SSE implementation. Otherwise, the `cpuid` is used to find the best implementation at runtime.
 1. **aarch64** with [crc feature](https://developer.arm.com/documentation/dui0801/g/A32-and-T32-Instructions/CRC32C)
     * Only available on rust version >= 1.80.0 or nightly
+    * Little-endian NEON targets with AES/PMULL support use parallel polynomial folding
+      for inputs of at least 64 bytes. Other inputs retain the existing CRC-instruction path.
 
 All other processors utilize a software fallback.
+
+To benchmark the short-input and folding boundaries alongside larger buffers, run:
+
+```bash
+cargo bench --bench rand -- crc32c_lengths
+```
+
+The folding thresholds are tuned on Apple M4. Other AArch64 processors should be
+measured before assuming the same speedup; x86 and the public checksum format are unchanged.
 
 ## Usage
 
